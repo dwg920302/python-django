@@ -9,16 +9,22 @@ from urllib.request import urlopen
 class MelonMusic(object):
     url = ''
     header = {'User-Agent': 'Mozilla/5.0'}  # 저는 봇이 아닙니다 준비과정 01
+    soup = ''
+
+    date = ''
+    hour = ''
+
+    ranking_sort = {}
 
     def set_url(self):
-        pass
+        self.url = f'https://www.melon.com/chart/index.htm?dayTime={self.date}{self.hour}'
+        modifier01 = urllib.request.Request(self.url, headers=self.header)  # 저는 봇이 아닙니다 준비과정 02
+        self.soup = BeautifulSoup(urlopen(modifier01), "lxml")
 
     def scrap_ranking(self, category, ct_number):
-        modifier01 = urllib.request.Request(self.url, headers=self.header)  # 저는 봇이 아닙니다 준비과정 02
-        soup = BeautifulSoup(urlopen(modifier01), "lxml")
         cnt = 0
         print(f'----------[{category} RANKING]----------')
-        for i in soup.find_all(name='div', attrs=({"class": f"ellipsis rank0{ct_number}"})):
+        for i in self.soup.find_all(name='div', attrs=({"class": f"ellipsis rank0{ct_number}"})):
             cnt += 1
             print(f'[{str(cnt)}위] : {i.find("a").text}')
 
@@ -28,6 +34,8 @@ class MelonMusic(object):
         while 1:
             menu = input('[MENU]\n1 = get Ranking / 2 = ??? / 0 = Exit')
             if menu == '1':
+                melon.date = input('날짜 입력 (ex) 20210525 -> ')
+                melon.hour = input('몇 시의 차트를 가져올까요? (00, 01, 07~23) -> ')
                 melon.set_url()
             elif menu == '2':
                 melon.scrap_ranking("SONG", 1)

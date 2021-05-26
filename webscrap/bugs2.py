@@ -1,23 +1,59 @@
-class Bugs2(object):
+from bs4 import BeautifulSoup
+import requests
 
-    url = ''
+
+# lecturer's code
+
+
+class BugsMusic2(object):
+    url = 'https://music.bugs.co.kr/chart/track/realtime/total?'
+    headers = {'User-Agent': 'Mozilla/5.0'}
     class_name = []
+    title_ls = []
+    artist_ls = []
+    dict = {}
 
-    def set_url(self, url):
-        pass
+    def set_url(self, detail):
+        self.url = requests.get(f'{self.url}{detail}', headers=self.headers).text
 
     def get_ranking(self):
-        pass
+        soup = BeautifulSoup(self.url, 'lxml')
+        ls1 = soup.find_all(name='p', attrs=({"class": self.class_name[1]}))
+        ls2 = soup.find_all(name='p', attrs=({"class": self.class_name[0]}))
+        for i in ls1:
+            self.title_ls.append(i.soup.find('a').text)
+        for i in ls2:
+            self.artist_ls.append(i.soup.find('a').text)
+
+    def insert_title_dict(self):
+        for i in range(0, len(self.title_ls)):
+            self.dict[self.title_ls[i]] = self.artist_ls[i]
+            '''
+            for i, j in enumerate(self.title_ls):
+            self.dict[self.title_ls[j]] = self.artist_ls[i]
+            
+            for i, j in zip(self.title_ls, self.artist_ls):
+            self.title_dict[i] = j
+            '''
 
     @staticmethod
     def main():
-        b = Bugs2()
+        bugs = BugsMusic2()
         while 1:
-            menu = input('0, 1-input, 2-output')
-            if menu == '1':
-                b.set_url(input('url -> '))
+            menu = input('0-exit, 1-input time, 2-output, 3-print dict')
+            if menu == '0':
+                break
+            elif menu == '1':
+                bugs.set_url('wl_ref=M_contents_03_01')
             elif menu == '2':
-                b.get_ranking()
+                bugs.class_name.append("artist")
+                bugs.class_name.append("title")
+                bugs.get_ranking()
+            elif menu == '3':
+                bugs.insert_title_dict()
+            else:
+                print('Wrong Number')
+                continue
 
 
-Bugs2.main()
+BugsMusic2.main()

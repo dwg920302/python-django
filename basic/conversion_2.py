@@ -1,4 +1,4 @@
-import pandas as pds
+import pandas as pd
 
 
 class ConversionA(object):
@@ -21,15 +21,36 @@ class ConversionA(object):
 
     @staticmethod
     def make_dict(ls) -> {}:
-        return {str(i): ls[i] for i in range(len(ls))}
+        return dict(zip(ls, ls))
+        #   return {str(i): ls[i] for i in range(len(ls))}
+
+    @staticmethod
+    def make_better_dict(ls) -> {}:
+        ls_2 = []
+        for i in ls:
+            ls_2.append([i])
+        return dict(zip(ls, ls_2))
 
     @staticmethod
     def str_to_tuple(param) -> ():
         return tuple(param)
 
     @staticmethod
-    def dict_to_dataframe(dc) -> pds.DataFrame:
-        return pds.DataFrame(dc, index=[''])
+    def dict_to_dataframe(dc) -> pd.DataFrame:
+        return pd.DataFrame(dc, index=[''])
+
+    @staticmethod
+    def dic_to_df(dc) -> object:
+        return pd.DataFrame(dc)
+        # DC만 넣어서 데이터 프레임 작성 SSAP가능. 단, 다음 두 조건을 만족해야 함
+        # 1. 형태가 무조건 key(단일) : value(다중(list, ...)) 이어야 함
+        # 2. Value값이 전부 같은 크기여야 함 (리스트 크기가 1이어도 OK)
+        # 자동 완성이라 편리하다는 장점, idx를 자동으로 잡아버린다는 단점
+
+    @staticmethod
+    def dict_to_dataframe_other(dc) -> object:
+        return pd.DataFrame.from_dict(dc, orient='index')
+        # orient는 index와 columns만 받음. column이 default고, index는 x,y를 반대로 정렬함
 
     @staticmethod
     def main():
@@ -67,7 +88,15 @@ class ConversionA(object):
                 ls = c.tuple_to_list(tp)
                 print(ls)
             elif menu == '8':  # 5번 딕셔너리를 데이터프레임(판다스) 으로 전환하시오
+                dc = c.make_dict(ls)
                 df = c.dict_to_dataframe(dc)
+                print(df)
+                dc = c.make_better_dict(ls)
+                df = c.dic_to_df(dc)
+                print(df)
+            elif menu == '9':  #
+                dc = c.make_dict(ls)
+                df = c.dict_to_dataframe_other(dc)
                 print(df)
             else:
                 print('err')

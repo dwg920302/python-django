@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
+import pandas as pd
 
 
 class BugsMusic(object):
@@ -16,6 +17,8 @@ class BugsMusic(object):
     t_lst = []
     a_lst = []
     common_dict = {}
+
+    df = None
 
     RANKING_SIZE = 100
 
@@ -100,6 +103,16 @@ class BugsMusic(object):
             self.common_dict[self.t_lst[i]] = self.a_lst[i]
         print(self.common_dict)
 
+    def get_dataframe(self):
+        dt = self.common_dict
+        self.df = pd.DataFrame.from_dict(dt, orient='index')
+        print(self.df)
+
+    def df_to_csv(self):
+        path = './data/bugs.csv'  # 뒤로 한 경로 가서 data 폴더
+        self.df.to_csv(path, sep=',', na_rep='NaN')
+        print('[파일 생성됨]')
+
     @staticmethod
     def main():
         bugs = BugsMusic()
@@ -121,6 +134,10 @@ class BugsMusic(object):
                 bugs.scrap2()
             elif menu == '7':
                 bugs.get_ranking()
+            elif menu == '8':
+                bugs.get_dataframe()
+            elif menu == '9':
+                bugs.df_to_csv()
             elif menu == '0':
                 print('By2By2~')
                 break

@@ -1,20 +1,22 @@
 from bs4 import BeautifulSoup
 import requests
+import pandas as pd
 
 
 # lecturer's code
 
 
 class BugsMusic2(object):
-    url = 'https://music.bugs.co.kr/chart/track/realtime/total?'
+    url = ''
     headers = {'User-Agent': 'Mozilla/5.0'}
     class_name = []
     title_ls = []
     artist_ls = []
     dict = {}
+    df = None
 
     def set_url(self, detail):
-        self.url = requests.get(f'{self.url}{detail}', headers=self.headers).text
+        self.url = requests.get(f'https://music.bugs.co.kr/chart/track/realtime/total?chartdate={detail}', headers=self.headers).text
 
     def get_ranking(self):
         soup = BeautifulSoup(self.url, 'lxml')
@@ -36,6 +38,11 @@ class BugsMusic2(object):
             self.title_dict[i] = j
             '''
 
+    def dict_to_dataframe(self):
+        dt = self.dict
+        df = pd.DataFrame.from_dict(dt, orient='index')
+        print(df)
+
     @staticmethod
     def main():
         bugs = BugsMusic2()
@@ -44,13 +51,17 @@ class BugsMusic2(object):
             if menu == '0':
                 break
             elif menu == '1':
-                bugs.set_url('wl_ref=M_contents_03_01')
+                date = input('date (ex) 20210525 -> ')
+                hour = input('time (ex) 00, 01, 07, 23 -> ')
+                bugs.set_url(f'{date}{hour}')
             elif menu == '2':
                 bugs.class_name.append("artist")
                 bugs.class_name.append("title")
                 bugs.get_ranking()
             elif menu == '3':
                 bugs.insert_title_dict()
+            elif menu == '4':
+                bugs.dict_to_dataframe()
             else:
                 print('Wrong Number')
                 continue

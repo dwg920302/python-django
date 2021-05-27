@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import urllib.request
 from urllib.request import urlopen
+import pandas as pd
 
 
 # 이번 예제로 알게 된 것 : 벅스는 보안성이 취약함...
@@ -20,6 +21,9 @@ class MelonMusic(object):
     t_lst = []
     a_lst = []
     common_dict = {}
+    common_dfrm = None
+
+    download_path = './data/melon.csv'
 
     RANKING_SIZE = 100
 
@@ -62,6 +66,14 @@ class MelonMusic(object):
         for i in range(len(self.class_dict)):
             self.idx += 1
 
+    def get_csv(self):  # Dictionary를 DataFrame화 + csv 파일 출력
+        self.common_dfrm = pd.DataFrame.from_dict(self.common_dict, orient="index")
+        self.common_dfrm.to_csv(self.download_path, sep=',', na_rep='NaN')
+        print('[파일 생성됨]')
+
+
+
+
     @staticmethod
     def main():
         melon = MelonMusic()
@@ -75,6 +87,8 @@ class MelonMusic(object):
                 melon.scrap_all()
             elif menu == '3':
                 melon.make_dictionary()
+            elif menu == '4':
+                melon.get_csv()
             elif menu == '0':
                 print('By2By2~')
                 break

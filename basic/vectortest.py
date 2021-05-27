@@ -1,14 +1,22 @@
 class VectorTest(object):
-    ls = ['abcd', 786, 2.23, 'john', 70.2]
-    tiny_ls = [123, 'john']
-    tp = ('abcd', 786, 2.23, 'john', 70.2)
-    tiny_tp = (123, 'john')
-    dt = {'abcd': 786, 'john': 70.2}
-    tiny_dt = {'홍': '30세'}
+    ls = []
+    tiny_ls = []
+    tp = ()
+    tiny_tp = ()
+    dt = {}
+    tiny_dt = {}
 
     dt_struct = {'1': "List", '2': "Tuple", '3': "Dictionary"}
 
     struct = ''
+
+    def set_list(self):
+        self.ls = ['abcd', 786, 2.23, 'john', 70.2]
+        self.tiny_ls = [123, 'john']
+        self.tp = ('abcd', 786, 2.23, 'john', 70.2)
+        self.tiny_tp = (123, 'john')
+        self.dt = {'abcd': 786, 'john': 70.2}
+        self.tiny_dt = {'홍': '30세'}
 
     def func_create(self):
         if self.struct == 'List':

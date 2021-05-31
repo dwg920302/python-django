@@ -3,15 +3,11 @@ import pandas as pd
 import requests
 
 
-# 코드가 너무 스파게티라 정리 필요
-# 종목명 이름 TITLE(title)을 일부러 TLTLE(tltle)로 오타낸거 실화냐 ㅡㅡ
-
-
 class NaverFinance(object):
 
     url = 'https://finance.naver.com/sise/lastsearch2.nhn'   # URL이 고정값이라 따로 입력받지 않음
-    header = {'User-Agent': 'Mozilla/5.0'}
-    path = './csv_data/naver_finance.csv'
+    header = {'User-Agent': 'Mozilla/5.0'}  # 네이버 금융서버에서 http 패킷 헤더의 웹 브라우저 정보(User-agent)를 체크
+    path = './csv_data/naver_finance.csv'   # 웹 브라우저 정보를 함께 전송해야 한다.
     soup = None
 
     doc = ''
@@ -19,7 +15,6 @@ class NaverFinance(object):
     ls_keys = []
     ls_values = []
     ls_values2 = []
-    ls_elements = []
 
     ls_indexes = []
 
@@ -29,9 +24,6 @@ class NaverFinance(object):
     def set_soup(self):
         pass
 
-    # 네이버 금융서버에서 http 패킷 헤더의 웹 브라우저 정보(User-agent)를 체크
-    # 웹 브라우저 정보를 함께 전송해야 한다.
-
     def get_stock_info(self):
         print(self.url)
 
@@ -40,7 +32,7 @@ class NaverFinance(object):
             for i in html.find_all(name='tr', attrs=({"class": "type1"})):
                 try:
                     self.ls_indexes.append(i.find(name='th').text)
-                except AttributeError:  # None 처리
+                except AttributeError:  # None 처리. None-type 가져올 때 Error를 무시시킴
                     continue
         print(self.ls_indexes)
 
@@ -51,7 +43,8 @@ class NaverFinance(object):
                     self.ls_keys.append(i.find(name='td', attrs=({"class": "no"})).text)
                     self.ls_values.append(i.find(name='a', attrs=({"class": "tltle"})).text)
                     self.ls_values2.append(i.select('a')[0]['href'])
-                except AttributeError:  # None-type 가져올 때 Error를 무시시킴
+                    # class tltle이 오타낸 게 아니라 실제로 저렇게 되어 있음
+                except AttributeError:  # None 처리.
                     continue
         print(self.ls_keys)
         print(self.ls_values)
@@ -65,7 +58,6 @@ class NaverFinance(object):
         cnt = 0
         for i in self.ls_values2:
             self.url = 'https://finance.naver.com'+i
-            print(self.url)
             with requests.get(self.url, self.header) as doc:
                 dat = BeautifulSoup(doc.text, "html.parser")
                 for html in dat.find_all(name='div', attrs=({'class': 'description'})):
@@ -77,8 +69,13 @@ class NaverFinance(object):
         pass
 
     def get_csv(self):
-        self.common_dframe = pd.DataFrame(self.common_dict)
-        self.common_dframe.to_csv(self.path, sep=',', na_rep='NaN')
+        try:
+            self.common_dframe = pd.DataFrame(self.common_dict)
+            self.common_dframe.to_csv(self.path, sep=',', na_rep='NaN')
+            print('File creation Successful!')
+        except ValueError:
+            print('File creation Failed.')
+
 
     @staticmethod
     def main():
@@ -92,9 +89,9 @@ class NaverFinance(object):
             elif menu == '2':
                 naver.get_csv()
             elif menu == '3':
-                naver.re_value2()
-            else:
                 pass
+            else:
+                print('[Error] Wrong command.')
 
 
 NaverFinance.main()

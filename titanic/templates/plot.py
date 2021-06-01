@@ -15,7 +15,7 @@ class Plot(object):
         self.entity = self.service.new_model(fname)
 
     def draw_survived(self):
-        this = self.entity
+        this = self.entity  # 원래 내용물을 복사 (독립성)
         # print(f'The data type of Train is {type(this.train)}.')
         # print(f'Columns of Train is {this.train.columns}.')
         # print(f'The top 5 superior data are {this.train.head}.')
@@ -35,7 +35,7 @@ class Plot(object):
         sns.countplot(data=this, x='Pclass', hue='Survived')
         plt.show()
 
-    def draw_sex(self):
+    def draw_gender(self):
         this = self.entity
         f, ax = plt.subplots(1, 2, figsize = (18, 8))
         this['Survived'][this['Sex'] == 'male'].value_counts().plot.pie(explode=[0, 0.1], autopct='%1.1f%%', ax=ax[0], shadow=True)

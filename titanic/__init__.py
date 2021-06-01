@@ -12,10 +12,10 @@ if __name__ == '__main__':
             plot = Plot('train.csv')
             plot.draw_survived()
             plot.draw_pclass()
-            plot.draw_sex()
+            plot.draw_gender()
             plot.draw_embarked()
         elif mn == '2':
-            controller.modeling('train.csv', 'test.csv')
+            dat = controller.modeling('train.csv', 'test.csv')
         elif mn == '3':
             pass
         elif mn == '4':

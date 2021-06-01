@@ -39,6 +39,10 @@ class Service(object):
         return this
 
     @staticmethod
+    def fare_ordinal(this) -> object:
+        return this
+
+    @staticmethod
     def fare_band_fill_na(this) -> object:
         this.train['Fare'].fillna({'Embarked': 'S'})
         #   N/A 값들 채우기 (fill)   fare, band?
@@ -70,26 +74,17 @@ class Service(object):
         for dataset in combine:
             dataset.rename(columns={'Sex': 'Gender'}, inplace=True)
             dataset['Gender'] = dataset['Gender'].map(mapping)
-            # 만약 inplace=True가 없다면 df에 바뀐 열 이름이 적용되지 않는다.
-        this.train = this.train
-        this.test = this.test
+            # 만약 inplace=True가 없다면 바뀐 내용이 적용되지 않음
         return this
 
     @staticmethod
     def age_ordinal(this) -> object:
         combine = [this.train, this.test]
         for dataset in combine:
-            dataset['Age'] = dataset['Age'].map({float: int})   # 안됨. 뭘로 접근시켜야 할지 모르겠음;
+            dataset['Age'] = dataset['Age'].fillna(0.0)
+            dataset['Age'] = dataset['Age'].map(lambda x: int(x))
         return this
 
     @staticmethod
     def create_k_fold(this) -> object:
-        return this
-
-
-
-
-
-
-
-
+        return this  # 이건 매우 어려울 거 같은데 ㄷㄷㄷ

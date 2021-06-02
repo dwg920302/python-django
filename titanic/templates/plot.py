@@ -8,18 +8,14 @@ rc('font', family=font_manager.FontProperties(fname='C:/Windows/Fonts/H2GTRE.ttf
 
 class Plot(object):
 
-    dataset: object = Dataset()
-    service: object = Service()
+    dataset = Dataset()
+    service = Service()
 
     def __init__(self, fname):
         self.entity = self.service.new_model(fname)
 
     def draw_survived(self):
         this = self.entity  # 원래 내용물을 복사 (독립성)
-        # print(f'The data type of Train is {type(this.train)}.')
-        # print(f'Columns of Train is {this.train.columns}.')
-        # print(f'The top 5 superior data are {this.train.head}.')
-        # print(f'The top 5 inferior data are {this.train.tail}.')
         f, ax = plt.subplots(1, 2, figsize=(18, 8))
         this['Survived'].value_counts().plot.pie(explode=[0, 0.1], autopct='%1.1f%%', ax=ax[0], shadow=True)
         ax[0].set_title('0.사망자 vs 1.생존자')

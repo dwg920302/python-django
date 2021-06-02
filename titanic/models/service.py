@@ -1,5 +1,9 @@
 from titanic.models.dataset import Dataset
 import pandas as pd
+import numpy as np
+from sklearn.svm import SVC
+from sklearn.model_selection import KFold
+from sklearn.model_selection import cross_val_score
 
 
 class Service(object):
@@ -23,48 +27,49 @@ class Service(object):
         return this.train['Survived']
 
     @staticmethod
-    def drop_feature(this, feature) -> object:
-        this.train = this.train.drop([feature], axis=1)
-        this.test = this.test.drop([feature], axis=1)
+    def drop_feature(this, *features) -> object:
+        for i in features:
+            this.train = this.train.drop([i], axis=1)
+            this.test = this.test.drop([i], axis=1)
         return this
 
     @staticmethod
     def embarked_nominal(this) -> object:
-        this.train = this.train.fillna({'Embarked': 'S'})
-        this.test = this.test.fillna({'Embarked': 'S'})
-        dict_em = {'S': '1', 'C': '2', 'Q': '3'}
-        this.train['Embarked'] = this.train['Embarked'].map(dict_em)
-        this.test['Embarked'] = this.test['Embarked'].map(dict_em)
-        #   map 함수를 사용하여, S : 1, C : 2, Q : 3
+        combine = [this.train, this.test]
+        mapping = {'S': '1', 'C': '2', 'Q': '3'}
+        for data in combine:
+            data['Embarked'] = data['Embarked'].fillna('S')
+            data['Embarked'] = data['Embarked'].map(mapping)
         return this
 
     @staticmethod
     def fare_ordinal(this) -> object:
-        return this
-
-    @staticmethod
-    def fare_band_fill_na(this) -> object:
-        this.train['Fare'].fillna({'Embarked': 'S'})
-        #   N/A 값들 채우기 (fill)   fare, band?
+        this.test['Fare'] = this.test['Fare'].fillna(1)
+        this.train['FareBand'] = pd.qcut(this.train['Fare'], 4)
+        # quct 으로 bins 값 설정 {this.train["FareBand"].head(10)}
+        # bins = list(pd.qcut(this.train['Fare'], 4, retbins=True))
+        bins = [-1, 8, 13, 30, np.inf]
+        this.train = this.train.drop(['FareBand'], axis=1)
+        for these in this.train, this.test:
+            these['FareBand'] = pd.cut(these['Fare'], bins=bins, labels=[1, 2, 3, 4])  # {[labels]:[bins]}
         return this
 
     @staticmethod
     def title_nominal(this) -> object:
         title_mapping = {'Mr': 1, 'Miss': 2, 'Mrs': 3, 'Master': 4, 'Royal': 5, 'Rare': 6}
         combine = [this.train, this.test]
+        keywordset = {'Capt': 'Rare', 'Col': 'Rare', 'Don': 'Rare', 'Dr': 'Rare', 'Major': 'Rare', 'Rev': 'Rare',
+                    'Johkheer': 'Rare', 'Dona': 'Rare', 'Countess': 'Royal', 'Lady': 'Royal', 'Sir': 'Royal',
+                      'Mile': 'Mr', 'Ms': 'Miss', 'Mme': 'Rare'}
         for dataset in combine:
             dataset['Title'] = dataset.Name.str.extract('([A-Za-z]+)\.', expand=False)
-            # 칼럼 추가방법. extract 내에 있는 건 정규표현식
-        for dataset in combine:
             dataset['Title'] = dataset['Title'].replace(['Capt', 'Col', 'Don', 'Dr', 'Major', 'Rev', 'Jonkheer', 'Dona'], "Rare")
             dataset['Title'] = dataset['Title'].replace(['Countess', 'Lady', 'Sir'], 'Royal')
             dataset['Title'] = dataset['Title'].replace('Mlle', 'Mr')
             dataset['Title'] = dataset['Title'].replace('Ms', 'Miss')
             dataset['Title'] = dataset['Title'].replace('Mme', 'Rare')
-        for dataset in combine:
             dataset['Title'] = dataset['Title'].fillna(0)
             dataset['Title'] = dataset['Title'].map(title_mapping)
-            #fillna(0) 0은 호칭이 없는 극빈, 노예
         return this
 
     @staticmethod
@@ -79,12 +84,29 @@ class Service(object):
 
     @staticmethod
     def age_ordinal(this) -> object:
-        combine = [this.train, this.test]
-        for dataset in combine:
-            dataset['Age'] = dataset['Age'].fillna(0.0)
-            dataset['Age'] = dataset['Age'].map(lambda x: int(x))
+        bins = [-1, 0, 5, 12, 18, 24, 35, 60, np.inf]
+        labels = ['Unknown', 'Baby', 'Child', 'Teenager', 'Student', 'Young Adult', 'Adult', 'Senior']
+        age_title_mapping = {'Unknown': 0, 'Baby': 1, 'Child': 2, 'Teenager': 3, 'Student': 4, 'Young Adult': 5,
+                             'Adult': 6, 'Senior': 7}
+        train = this.train
+        test = this.test
+        combine = [train, test]
+        for data in combine:
+            data['Age'] = data['Age'].fillna(-0.5)  # -0.5 = Unknown
+            data['AgeGroup'] = pd.cut(data['Age'], bins=bins, labels=labels)    # {[labels]:[bins]}
+            data['AgeGroup'] = data['AgeGroup'].map(age_title_mapping)
         return this
 
     @staticmethod
-    def create_k_fold(this) -> object:
-        return this  # 이건 매우 어려울 거 같은데 ㄷㄷㄷ
+    def create_k_fold() -> object:
+        return KFold(n_splits=10, shuffle=True, random_state=0)
+
+    @staticmethod
+    def accuracy_by_svm(this):
+        score = cross_val_score(SVC(),
+                                this.train,
+                                this.label,
+                                cv=KFold(n_splits=10, shuffle=True, random_state=0),
+                                n_jobs=1,
+                                scoring='accuracy')
+        return round(np.mean(score) * 100, 2)

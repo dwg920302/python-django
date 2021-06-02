@@ -5,8 +5,8 @@ from dataclasses import dataclass
 class Dataset(object):
     context: str
     fname: str
-    train: str
-    test: str
+    train: object
+    test: object
     id: str
     label: str
 
@@ -23,13 +23,13 @@ class Dataset(object):
     def fname(self, fname): self._fname = fname
 
     @property
-    def train(self) -> str: return self._train
+    def train(self) -> object: return self._train
 
     @train.setter
     def train(self, train): self._train = train
 
     @property
-    def test(self) -> str: return self._test
+    def test(self) -> object: return self._test
 
     @test.setter
     def test(self, test): self._test = test

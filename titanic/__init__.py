@@ -17,8 +17,8 @@ if __name__ == '__main__':
         elif mn == '2':
             dat = controller.modeling('train.csv', 'test.csv')
         elif mn == '3':
-            pass
+            controller.learning('train.csv', 'test.csv')
         elif mn == '4':
-            pass
+            controller.submit('train.csv', 'test.csv')
         else:
             print('error')

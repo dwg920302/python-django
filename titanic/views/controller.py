@@ -30,6 +30,23 @@ class Controller(object):
     def preprocess(self, train, test):
         service = self.service
         this = self.dataset
+        # 이 부분이랑 서비스의 해당 부분을 고치면 됨
+
+        this.train = service.new_model(train)
+        this.test = service.new_model(test)
+        this.id = this.test['PassengerId']
+        this = service.embarked_nominal(this)
+        this = service.title_nominal(this)
+        this = service.gender_nominal(this)
+        this = service.age_ordinal(this)
+        this = service.fare_ordinal(this)
+        this = service.drop_feature(this, 'Fare', 'Cabin', 'Ticket', 'Name', 'Gender', 'Age')
+        self.print_this(this)
+        return this
+
+    def preprocess_origin(self, train, test):
+        service = self.service
+        this = self.dataset
         this.train = service.new_model(train)
         this.test = service.new_model(test)
         this.id = this.test['PassengerId']

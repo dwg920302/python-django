@@ -34,6 +34,22 @@ class Service(object):
         return this
 
     @staticmethod
+    def create_k_fold() -> object:
+        return KFold(n_splits=10, shuffle=True, random_state=0)
+
+    @staticmethod
+    def accuracy_by_svm(this):
+        score = cross_val_score(SVC(),
+                                this.train,
+                                this.label,
+                                cv=KFold(n_splits=10, shuffle=True, random_state=0),
+                                n_jobs=1,
+                                scoring='accuracy')
+        return round(np.mean(score) * 100, 2)
+
+    # 이 아래부터 필요한 method를 만들고 작업하면 됨
+
+    @staticmethod
     def embarked_nominal(this) -> object:
         combine = [this.train, this.test]
         mapping = {'S': '1', 'C': '2', 'Q': '3'}
@@ -97,16 +113,4 @@ class Service(object):
             data['AgeGroup'] = data['AgeGroup'].map(age_title_mapping)
         return this
 
-    @staticmethod
-    def create_k_fold() -> object:
-        return KFold(n_splits=10, shuffle=True, random_state=0)
 
-    @staticmethod
-    def accuracy_by_svm(this):
-        score = cross_val_score(SVC(),
-                                this.train,
-                                this.label,
-                                cv=KFold(n_splits=10, shuffle=True, random_state=0),
-                                n_jobs=1,
-                                scoring='accuracy')
-        return round(np.mean(score) * 100, 2)
